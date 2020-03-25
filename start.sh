@@ -38,29 +38,31 @@ function latest()
 VERSION=$(latest versions)
 ASS_VER=$(latest assets/indexes)
 
-# Set main jar file
+# Set versioned variables
 MAIN_JAR=versions/${VERSION}/${VERSION}.jar
+MAIN_JSON=versions/${VERSION}/${VERSION}.json
+NAT_PREFIX=versions/${VERSION}/${VERSION}-natives
 
 # Get all java libraries (file names)
-LIB_FILES=`cat versions/${VERSION}/${VERSION}.json | grep libraries | grep -v natives | cut -d'"' -f4`
+LIB_FILES=`cat ${MAIN_JSON} | grep libraries | grep -v natives | cut -d'"' -f4`
 # Get all java libraries (names without versions)
 LIB_NAMES=`for x in ${LIB_FILES}; do x=$(dirname $x); x=$(dirname $x); x=$(basename $x); echo $x; done | sort -u`
 # Create list of libraries for classpath
-LIBS=`for x in ${LIB_NAMES}; do cat versions/${VERSION}/${VERSION}.json | grep libraries | grep -v sources | grep -v "\-doc" | grep -v natives | cut -d'"' -f4 | sort -u | egrep "${x}/[0-9]" | tail -n 1; done | sed 's/https:\/\/[a-z.]*\//libraries\//g' | xargs echo | sed 's/ /:/g'`
+LIBS=`for x in ${LIB_NAMES}; do cat ${MAIN_JSON} | grep libraries | grep -v sources | grep -v "\-doc" | grep -v natives | cut -d'"' -f4 | sort -u | egrep "${x}/[0-9]" | tail -n 1; done | sed 's/https:\/\/[a-z.]*\//libraries\//g' | xargs echo | sed 's/ /:/g'`
 
 # Get all native libraries (file names)
-NAT_FILES=`cat versions/${VERSION}/${VERSION}.json | grep natives | grep linux | grep url | cut -d'"' -f4`
+NAT_FILES=`cat ${MAIN_JSON} | grep natives | grep linux | grep url | cut -d'"' -f4`
 # Get all native libraries (names without versions)
 NAT_NAMES=`for x in ${NAT_FILES}; do x=$(dirname $x); x=$(dirname $x); x=$(basename $x); echo $x; done | sort -u`
 # Create list of natives for further processing
-NATIVES=`for x in ${NAT_NAMES}; do cat versions/${VERSION}/${VERSION}.json | grep natives | grep linux | grep url | cut -d'"' -f4 | sort -u | egrep "${x}/[0-9]" | tail -n 1; done | sed 's/https:\/\/[a-z.]*\//libraries\//g'`
+NATIVES=`for x in ${NAT_NAMES}; do cat ${MAIN_JSON} | grep natives | grep linux | grep url | cut -d'"' -f4 | sort -u | egrep "${x}/[0-9]" | tail -n 1; done | sed 's/https:\/\/[a-z.]*\//libraries\//g'`
 
 # Find existing natives directory, if any
-NAT_DIR="`find versions/${VERSION}/${VERSION}-natives-* -type d 2>/dev/null | grep -v META | tail -n 1`"
+NAT_DIR="`find ${NAT_PREFIX}-* -type d 2>/dev/null | grep -v META | tail -n 1`"
 
 # If there's none, set the path for the new one
 if [ "x" == "x${NAT_DIR}" ]; then
-  NAT_DIR="versions/${VERSION}/${VERSION}-natives-`date +'%s'`"
+  NAT_DIR="${NAT_PREFIX}-`date +'%s'`"
 fi
 
 # If natives directory doesn't exists, create it and unpack all native libraries there
