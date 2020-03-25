@@ -82,7 +82,7 @@ Write-Host "Player ${MC_USERNAME} (UUID ${MC_UUID})"
   "--gameDir" "${MC_DIR}" `
   "--assetsDir" "${MC_DIR}/assets" `
   "--assetIndex" "${ASS_VER}" `
-  "--uuid" "${UUID}" `
+  "--uuid" "${MC_UUID}" `
   "--accessToken" "null" `
   "--userProperties" "{}" `
   "--userType" "legacy" "${DEMO}"
